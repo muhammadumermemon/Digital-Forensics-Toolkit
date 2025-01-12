@@ -184,7 +184,9 @@ LOGFILE="forensics_toolkit.log" CONFIGFILE="config.cfg" USERFILE="users.cfg" dec
 load_config() { if [[ -f "$CONFIGFILE" ]]; then source "$CONFIGFILE" else echo "DEFAULT_DEVICE=/dev/sdb1" > "$CONFIGFILE" echo "DEFAULT_OUTPUT=forensic_image.img" >> "$CONFIGFILE" fi }
 load_users() { if [[ -f "$USERFILE" ]]; then while IFS=':' read -r username password; do users["$username"]="$password" done < "$USERFILE" fi }
 log_message() { local level="$1" local message="$2" echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] - $message" >> "$LOGFILE" }
+acquire_data() { read -p "Enter the device to acquire data from (default: $DEFAULT_DEVICE): " device device=${device:-$DEFAULT_DEVICE} read -p "Enter the output image file name (default: $DEFAULT_OUTPUT): " output_file output_file=${output_file:-$DEFAULT_OUTPUT}
 
+echo "Acquiring data from device $device..." if sudo dd if="$device" of="$output_file" bs=512 conv=noerror,sync; then log_message "INFO" "Data acquisition complete from $device to $output_file." echo "Data acquisition complete!" echo "Generating SHA-256 hash of the acquired data..." sudo sha256sum "$output_file" > "$output_file.sha256" log_message "INFO" "SHA-256 hash generated for $output_file." echo "SHA-256 hash generated!" else log_message "ERROR" "Error acquiring data from $device." echo "Error acquiring data. Please check the device path." fi }
 
 
 
