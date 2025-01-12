@@ -190,5 +190,11 @@ echo "Acquiring data from device $device..." if sudo dd if="$device" of="$output
 analyze_data() { read -p "Enter the forensic image file name (default: $DEFAULT_OUTPUT): " input_file input_file=${input_file:-$DEFAULT_OUTPUT}
 
 echo "Analyzing acquired data from $input_file..." if sudo autopsy "$input_file"; then log_message "INFO" "Data analysis complete for $input_file." echo "Data analysis complete!" echo "Generating report..." sudo autopsy -report "$input_file" > "${input_file}_report.txt" log_message "INFO" "Report generated for $input_file." echo "Report generated!" else log_message "ERROR" "Error analyzing data from $input_file." echo "Error analyzing data. Please check the file path." fi }
+verify_integrity() { read -p "Enter the forensic image file name (default: $DEFAULT_OUTPUT): " input_file input_file=${input_file:-$DEFAULT_OUTPUT}
 
+echo "Choose hash algorithm (1: SHA-256, 2: SHA-1, 3: SHA-512): " read -p "Enter choice: " hash_choice
+
+case $hash_choice in 1) hash_cmd="sha256sum" ;; 2) hash_cmd="sha1sum" ;; 3) hash_cmd="sha512sum" ;; *) echo "Invalid choice"; return ;; esac
+
+if [[ -f "$input_file.$(echo $hash_cmd | cut -d' ' -f1)" ]]; then echo "Verifying integrity of $input_file..." if $hash_cmd -c "$input_file.$(echo $hash_cmd | cut -d' ' -f1)"; then echo "Integrity check passed!" log_message "INFO" "Integrity check passed for $input_file." else echo "Integrity check failed!" log_message "ERROR" "Integrity check failed for $input_file." fi else echo "Hash file not found. Please acquire data first." fi }
 
