@@ -197,4 +197,6 @@ echo "Choose hash algorithm (1: SHA-256, 2: SHA-1, 3: SHA-512): " read -p "Enter
 case $hash_choice in 1) hash_cmd="sha256sum" ;; 2) hash_cmd="sha1sum" ;; 3) hash_cmd="sha512sum" ;; *) echo "Invalid choice"; return ;; esac
 
 if [[ -f "$input_file.$(echo $hash_cmd | cut -d' ' -f1)" ]]; then echo "Verifying integrity of $input_file..." if $hash_cmd -c "$input_file.$(echo $hash_cmd | cut -d' ' -f1)"; then echo "Integrity check passed!" log_message "INFO" "Integrity check passed for $input_file." else echo "Integrity check failed!" log_message "ERROR" "Integrity check failed for $input_file." fi else echo "Hash file not found. Please acquire data first." fi }
+analyze_file_types() { read -p "Enter the forensic image file name (default: $DEFAULT_OUTPUT): " input_file input_file=${input_file:-$DEFAULT_OUTPUT}
 
+echo "Analyzing file types in $input_file..." file "$input_file" > "${input_file}_file_types.txt" log_message "INFO" "File type analysis complete for $input_file." echo "File type analysis complete! Results saved in ${input_file}_file_types.txt." }
