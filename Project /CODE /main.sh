@@ -183,7 +183,7 @@ esac
 LOGFILE="forensics_toolkit.log" CONFIGFILE="config.cfg" USERFILE="users.cfg" declare -A users
 load_config() { if [[ -f "$CONFIGFILE" ]]; then source "$CONFIGFILE" else echo "DEFAULT_DEVICE=/dev/sdb1" > "$CONFIGFILE" echo "DEFAULT_OUTPUT=forensic_image.img" >> "$CONFIGFILE" fi }
 load_users() { if [[ -f "$USERFILE" ]]; then while IFS=':' read -r username password; do users["$username"]="$password" done < "$USERFILE" fi }
-
+log_message() { local level="$1" local message="$2" echo "$(date '+%Y-%m-%d %H:%M:%S') [$level] - $message" >> "$LOGFILE" }
 
 
 
