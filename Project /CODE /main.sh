@@ -187,6 +187,8 @@ log_message() { local level="$1" local message="$2" echo "$(date '+%Y-%m-%d %H:%
 acquire_data() { read -p "Enter the device to acquire data from (default: $DEFAULT_DEVICE): " device device=${device:-$DEFAULT_DEVICE} read -p "Enter the output image file name (default: $DEFAULT_OUTPUT): " output_file output_file=${output_file:-$DEFAULT_OUTPUT}
 
 echo "Acquiring data from device $device..." if sudo dd if="$device" of="$output_file" bs=512 conv=noerror,sync; then log_message "INFO" "Data acquisition complete from $device to $output_file." echo "Data acquisition complete!" echo "Generating SHA-256 hash of the acquired data..." sudo sha256sum "$output_file" > "$output_file.sha256" log_message "INFO" "SHA-256 hash generated for $output_file." echo "SHA-256 hash generated!" else log_message "ERROR" "Error acquiring data from $device." echo "Error acquiring data. Please check the device path." fi }
+analyze_data() { read -p "Enter the forensic image file name (default: $DEFAULT_OUTPUT): " input_file input_file=${input_file:-$DEFAULT_OUTPUT}
 
+echo "Analyzing acquired data from $input_file..." if sudo autopsy "$input_file"; then log_message "INFO" "Data analysis complete for $input_file." echo "Data analysis complete!" echo "Generating report..." sudo autopsy -report "$input_file" > "${input_file}_report.txt" log_message "INFO" "Report generated for $input_file." echo "Report generated!" else log_message "ERROR" "Error analyzing data from $input_file." echo "Error analyzing data. Please check the file path." fi }
 
 
